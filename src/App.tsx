@@ -7,21 +7,19 @@ import SignIn from './Pages/SignIn';
 
 import GlobalStyle from './styles/global';
 
-import ToastContainer from './components/ToastContainer';
-import { AuthProvider } from './hooks/AuthContext';
-
+import AppProvider from './hooks';
 
 function App() {
   
   return (
     <>
-      <AuthProvider>
+      <AppProvider>
         <SignIn/>
         {/* <BrowserRouter>
           <Routes/>
         </BrowserRouter> */}
-      </AuthProvider>
-      <ToastContainer/>
+      </AppProvider>
+    
       <GlobalStyle/>
     </>
   );
