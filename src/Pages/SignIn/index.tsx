@@ -3,6 +3,7 @@ import {FiLogIn, FiMail, FiLock} from 'react-icons/fi';
 import { Form } from '@unform/web';
 import { FormHandles } from '@unform/core';
 import * as Yup from 'yup';
+import { Link, useHistory } from 'react-router-dom';
 
 import { useAuth } from '../../hooks/AuthContext';
 import { useToast } from '../../hooks/ToastContext';
@@ -26,6 +27,8 @@ const SignIn = () => {
   const { signIn } = useAuth();
   const { addToast } = useToast();
 
+  const history = useHistory();
+
   const handleSubmit = useCallback(
     async(data: SignInFormData) => {
       try {
@@ -43,11 +46,16 @@ const SignIn = () => {
           email: data.email,
           password: data.password,
         });
+
+        history.push('/dashboard');
+
       } catch(err) {
         if(err instanceof Yup.ValidationError) {
           const errors = getValidationErrors(err);
 
           formRef.current?.setErrors(errors);
+
+          return;
         }
 
         addToast({
@@ -57,7 +65,7 @@ const SignIn = () => {
         }); 
         
       }
-  }, [signIn, addToast]);
+  }, [signIn, addToast, history]);
 
   return(
     <Container>
@@ -73,7 +81,7 @@ const SignIn = () => {
           <a href="teste">Esqueci minha senha</a>
         </Form>
 
-        <a href="create"><FiLogIn size={20}/>Criar conta</a>
+        <Link to="/signup"><FiLogIn size={20}/>Criar conta</Link>
       </Content>
       <Background/>
     </Container>

@@ -1,9 +1,7 @@
 import React from 'react';
-import SignIn from './Pages/SignIn';
-// import {BrowserRouter} from 'react-router-dom';
-// import Routes from './routes';
 
-// import SignUp from './Pages/SignUp';
+import {BrowserRouter} from 'react-router-dom';
+import Routes from './routes';
 
 import GlobalStyle from './styles/global';
 
@@ -13,13 +11,11 @@ function App() {
   
   return (
     <>
-      <AppProvider>
-        <SignIn/>
-        {/* <BrowserRouter>
+      <BrowserRouter>
+        <AppProvider>
           <Routes/>
-        </BrowserRouter> */}
-      </AppProvider>
-    
+        </AppProvider>
+      </BrowserRouter>
       <GlobalStyle/>
     </>
   );
