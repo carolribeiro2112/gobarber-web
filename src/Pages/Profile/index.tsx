@@ -19,7 +19,9 @@ import { useAuth } from '../../hooks/AuthContext';
 interface ProfileFormData {
   name: string;
   email: string;
+  old_password: string;
   password: string;
+  password_confirmation: string;
 }
 
 const Profile = () => {
@@ -36,20 +38,42 @@ const Profile = () => {
       const schema = Yup.object().shape({
         name: Yup.string().required('Nome obrigatório'),
         email: Yup.string().required('E-mail obrigatório').email('Digite um E-mail váilido'),
-        password: Yup.string().min(6, 'No mínimo 6 dígitos'),
+        old_password: Yup.string(),
+        password: Yup.string().when('old_password', {
+          is: (val:any) => !!val.length,
+          then: Yup.string().required('Campo obrigatório'),
+          otherwise: Yup.string(),
+        }),
+        password_confirmation: Yup.string().when('old_password', {
+          is: (val:any) => !!val.length,
+          then: Yup.string().required('Campo obrigatório'),
+          otherwise: Yup.string(),
+        }).oneOf([Yup.ref('password'), null], 'Senhas devem ser iguais')
       });
+
       await schema.validate(data,{
         abortEarly: false,
       });
 
-      await api.post('users', data);
+      const formData = Object.assign({
+        name: data.name,
+        email: data.email,
+      }, data.old_password ? {
+        old_password: data.old_password,
+        password: data.password,
+        password_confirmation: data.password_confirmation,
+      }: {});
 
-      history.push('/');
+      const response = await api.put('/profile', formData);
+
+      updateUser(response.data)
+
+      history.push('/dashboard');
 
       addToast({
         type: 'success',
-        title: 'Cadastro realizado com sucesso!',
-        description: 'Você já pode fazer login no goBarber!'
+        title: 'Perfil atualizado com sucesso!',
+        description: 'Suas informações do perfil foram atualizadas com sucesso!'
       })
 
     } catch(err) {
@@ -63,11 +87,11 @@ const Profile = () => {
 
       addToast({
         type: 'error',
-        title: 'Erro no cadastro',
-        description: 'Ocorreu um erro ao fazer o cadastro, tente novamente.'
+        title: 'Erro na atualização',
+        description: 'Ocorreu um erro ao atualizar o cadastro, tente novamente.'
       }); 
     }
-  }, [addToast, history]);
+  }, [addToast, history, updateUser]);
 
   const handleAvatarChange = useCallback((e:ChangeEvent<HTMLInputElement>)=>{
     if(e.target.files) {
@@ -75,7 +99,7 @@ const Profile = () => {
 
       data.append('avatar', e.target.files[0])
 
-      api.patch('/user/avatar', data).then((response)=>{
+      api.patch('/users/avatar', data).then((response)=>{
         updateUser(response.data);
 
         addToast({
